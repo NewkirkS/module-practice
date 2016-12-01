@@ -1,0 +1,66 @@
+<?php
+
+function states_menu() {
+    $items['states'] = array(
+        'title' => 'State Poll',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('states_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['states_success_page'] = array(
+        'title' => 'State Poll',
+        'page callback' => 'states_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function states_form() {
+    $form['state'] = array(
+        '#title' => 'State',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the state in which you live.'),
+        '#element_validate' => array('element_validate_state'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Go',
+    );
+
+    return $form;
+}
+
+function element_validate_state($element) {
+    $string = $element['#value'];
+    $valid = false;
+    if (strlen($string) === 2) {
+        if (ctype_lower($string)|| ctype_upper($string)) {
+            $valid = true;
+        }
+    }
+
+    elseif (strlen($string) > 3) {
+        if (ctype_lower($string) || (ctype_upper(substr($string,0,1)) && ctype_lower(substr($string,1,(strlen($string)-1))))) {
+            $valid = true;
+        }
+    }
+
+    if (!$valid) {
+        form_error($element, t('Please enter a valid state name or abbreviation.'));
+    }
+}
+
+function states_form_submit($form, &$form_state) {
+    $state = $form_state['values']['state'];
+
+    $form_state['redirect'] = 'states_success_page';
+    $_SESSION['state'] = $state;
+}
+
+function states_success() {
+    $state = $_SESSION['state'];
+    return '<h3>Thank you for your contribution to this poll! Enjoy your life in the beautiful state of ' . $state . '!</h3>';
+}

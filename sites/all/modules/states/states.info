@@ -1,0 +1,5 @@
+name = State Poll
+description = Asks user for the state they live in.
+package = My Modules
+core = 7.x
+files[] = states.module
