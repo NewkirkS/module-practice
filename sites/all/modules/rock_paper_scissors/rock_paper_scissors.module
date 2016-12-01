@@ -1,0 +1,98 @@
+<?php
+
+function rock_paper_scissors_menu() {
+    $items['player1_page'] = array(
+        'title' => 'Rock Paper Scissors',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('player1_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['player2_page'] = array (
+        'title' => "Player 2's Turn",
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('player2_form'),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    $items['results'] = array (
+        'title' => "Game Results",
+        'page callback' => 'rock_paper_scissors_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function player1_form() {
+    $form['player1_choice'] = array(
+        '#title' => 'Player 1',
+        '#type' => 'textfield',
+        '#description' => 'Type rock, paper or scissors',
+        '#element_validate' => array('element_validate_choice'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Go',
+    );
+
+    return $form;
+}
+function player2_form() {
+    $form['player2_choice'] = array(
+        '#title' => 'Player 2',
+        '#type' => 'textfield',
+        '#description' => 'Type rock, paper or scissors',
+        '#element_validate' => array('element_validate_choice'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Go',
+    );
+    return $form;
+}
+
+function element_validate_choice($element) {
+    $move = $element['#value'];
+
+    if ($move !== "rock" && $move !== "paper" && $move !== "scissors") {
+        form_error($element, t('Please enter a valid move ("rock", "paper", or "scissors").'));
+    }
+}
+
+function player1_form_submit($form, &$form_state) {
+    $move = $form_state['values']['player1_choice'];
+
+    $_SESSION['player1_choice'] = $move;
+    $form_state['redirect'] = 'player2_page';
+}
+
+function player2_form_submit($form, &$form_state) {
+    $move = $form_state['values']['player2_choice'];
+
+    $_SESSION['player2_choice'] = $move;
+    $form_state['redirect'] = 'results';
+}
+
+function rock_paper_scissors_success() {
+    $player1_move = $_SESSION['player1_choice'];
+    $player2_move = $_SESSION['player2_choice'];
+    $winner = '';
+
+    if ($player1_move === 'rock' && $player2_move === 'scissors' || $player1_move === 'scissors' && $player2_move === 'paper' ||
+    $player1_move === 'paper' && $player2_move === 'rock') {
+        $winner = "Player 1";
+    }
+
+    elseif ($player1_move === $player2_move) {
+        $winner = "It's a tie! Nobody";
+    }
+
+    else {
+        $winner = "Player 2";
+    }
+
+    return '<h3>' . $winner . ' is the winner!!!</h3>';
+}

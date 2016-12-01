@@ -1,0 +1,5 @@
+name = Rock Paper Scissors
+description = Play rock paper scissors with a friend
+package = My Modules
+core = 7.x
+files[] = rock_paper_scissors.module
