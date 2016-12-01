@@ -1,0 +1,83 @@
+<?php
+
+function triangles_menu() {
+    $items['triangles'] = array(
+        'title' => 'Triangles Tool',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('triangles_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['triangles_success_page'] = array(
+        'title' => 'Results',
+        'page callback' => 'triangles_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function triangles_form() {
+    $form['first_line'] = array(
+        '#title' => 'First line',
+        '#type' => 'textfield',
+        '#description' => t('First line of triangle'),
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+
+    $form['second_line'] = array(
+        '#title' => 'Second line',
+        '#type' => 'textfield',
+        '#description' => t('Second line of triangle'),
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+
+    $form['third_line'] = array(
+        '#title' => 'Third line',
+        '#type' => 'textfield',
+        '#description' => t('Third line of triangle'),
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Submit',
+    );
+
+    return $form;
+}
+
+function triangles_form_submit($form, &$form_state) {
+    $first_side = $form_state['values']['first_line'];
+    $second_side = $form_state['values']['second_line'];
+    $third_side = $form_state['values']['third_line'];
+    $triangle_type = "";
+
+    if ($first_side === $second_side && $second_side === $third_side) {
+        $triangle_type = "equilateral";
+    } elseif(($first_side === $second_side || $first_side === $third_side || $second_side == $third_side) && ($first_side != $second_side || $first_side != $third_side || $second_side != $third_side) && ($first_side + $second_side > $third_side) && ($first_side + $third_side > $second_side) && ($second_side + $third_side > $first_side)) {
+        $triangle_type = "isoceles";
+    } elseif (($first_side != $second_side && $first_side != $third_side && $second_side != $third_side) && (($first_side + $second_side > $third_side) && ($first_side + $third_side > $second_side) && ($second_side + $third_side > $first_side))) {
+        $triangle_type = "scalene";
+    } else {
+        $triangle_type = "not a triangle";
+    }
+    $_SESSION['triangle_result'] = $triangle_type;
+    $form_state['redirect'] = 'triangles_success_page';
+}
+
+function triangles_form_validate($form, &$form_state) {
+    $result = $_SESSION['triangle_result'];
+
+    if($result === 'not a triangle') {
+        form_set_error('first_side', 'Not a triangle!');
+    }
+}
+
+function triangles_success() {
+    $result = $_SESSION['triangle_result'];
+    return 'Your triangle is ' . $result . '.';
+}

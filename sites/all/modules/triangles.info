@@ -1,0 +1,5 @@
+name = Triangles
+description = Tells you what kind of triangle it is.
+package = My Modules
+core = 7.x
+files[] = triangles.module
